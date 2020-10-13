@@ -1,12 +1,17 @@
 <template>
   <div id="app">
     <canvas
+      :class="{hidden: gameOver}"
       ref="canvas"
       id="canvas"
       width="500"
       height="700"
       @mousemove="canvas($event)"
     ></canvas>
+    <div :class="{hidden: !gameOver}" >
+      {{winner}}
+      <button class="playAgain" @click="startGame">Play Again</button>
+    </div>
   </div>
 </template>
 
@@ -21,6 +26,9 @@ export default {
     return {
       playerScore: 0,
       computerScore: 0,
+      winningScore: 20,
+      isGameOver:true,
+      isNewGame:true,
       paddleWidth: 50,
       width: 500,
       height: 700,
@@ -40,6 +48,12 @@ export default {
     };
   },
   computed: {
+      winner: function() {
+        if(this.winningScore <= this.playerScore) return 'Player'
+        if(this.winningScore <= this.computerScore) return 'Computer'
+        return null;
+      },
+      gameOver: function() { return this.winningScore <= this.playerScore || this.winningScore <= this.computerScore},
       canvasPosition: function() { return this.screenWidth / 2 - this.width / 2}
   },
   methods: {
@@ -84,6 +98,8 @@ export default {
     ballMove() {
       // Vertical Speed
       this.ballY += -this.speedY;
+        console.log(" if-->", this.playerMoved, this.paddleContact)
+
       // Horizontal Speed
       if (this.playerMoved && this.paddleContact) {
         this.ballX += this.speedX;
@@ -92,7 +108,7 @@ export default {
 
     canvas(e) {
       const canvas = this.$refs.canvas;
-       // let playerMoved = true;
+       this.playerMoved = true;
       //  console.log('widthds ---->', this.screenWidth,this.width, this.screenWidth / 2 - this.width / 2)
       //  console.log('BEFORE: this.paddleBottomX -----> ', this.canvasPosition,  )
       this.paddleBottomX = e.clientX - this.canvasPosition - this.paddleDiff;
@@ -112,7 +128,8 @@ export default {
       this.playerScore = 0;
       this.computerScore = 0;
       this.ballReset();
-      console.log("bottomX-->", this.paddleBottomX);
+
+
 
       this.animate();
       this.createCanvas();
@@ -162,7 +179,6 @@ export default {
       }
       // Bounce off computer paddle (top)
       if (this.ballY < this.paddleDiff) {
-        console.log('this.paddleTopX--->', this.paddleTopX)
         if (
           this.ballX > this.paddleTopX &&
           this.ballX < this.paddleTopX + this.paddleWidth
@@ -210,4 +226,9 @@ export default {
   color: #2c3e50;
   margin-top: 60px;
 }
+.hidden{
+  visibility: hidden;
+}
+
+
 </style>
